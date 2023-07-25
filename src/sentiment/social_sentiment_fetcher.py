@@ -26,7 +26,8 @@ def _fetch_social_sentiment_from_finnhub(source_datastore, symbol, days):
 
     base_date = time_utils.get_current_date()
     end_date = time_utils.get_date_for_days_before(base_date, days)
-    market_days = time_utils.get_market_days(end_date, base_date)
+    print(f"Fetching social sentiment for {symbol}...")
+    market_days = set(time_utils.get_market_days(end_date, base_date))
     social_sentiment = _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol, base_date, end_date, 
                                                                days=SOCIAL_SENTIMENT_STEP, 
                                                                social_sentiment={'reddit': [], 'twitter': [], 'dates': []})

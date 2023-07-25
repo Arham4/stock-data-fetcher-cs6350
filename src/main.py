@@ -6,6 +6,7 @@ from technical.rsi_fetcher import RSIFetcher
 from technical.macd_fetcher import MACDFetcher
 from technical.stochastic_fetcher import StochasticFetcher
 from sentiment.social_sentiment_fetcher import SocialSentimentFetcher
+from sentiment.insider_sentiment_fetcher import InsiderSentimentFetcher
 
 # The amount of days we want to fetch data for
 PRICE_DAYS = 455
@@ -21,7 +22,7 @@ TECHNICAL_DAYS = PRICE_DAYS - TECHNICAL_BUFFER
 
 # The amount of days of social sentiment data we want to fetch data for. Since the social sentiment data is available every day, including non-trading days,
 # the required time horizon is less
-SOCIAL_SENTIMENT_DAYS = 365
+SENTIMENT_DAYS = 365
 
 def main():
     stocks_fetcher = StockFetcher()
@@ -31,10 +32,11 @@ def main():
     macd_fetcher = MACDFetcher()
     stochastic_fetcher = StochasticFetcher()
     social_sentiment_fetcher = SocialSentimentFetcher()
+    insider_sentiment_fetcher = InsiderSentimentFetcher()
 
     stocks, output_type = stocks_fetcher.fetch_stocks(HARDCODED)
 
-    columns = ['Stock name', 'Date', 'Price', 'RSI', 'MACD', 'Stoch', 'Reddit', 'Twitter']
+    columns = ['Stock name', 'Date', 'Price', 'RSI', 'MACD', 'Stoch', 'Reddit', 'Twitter', 'Insider']
 
     with open(f'./output/{output_type}_data.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
@@ -45,7 +47,8 @@ def main():
             rsi = rsi_fetcher.fetch_rsi_values(source_datastore, symbol, days=TECHNICAL_DAYS, source=FINNHUB_API)
             macd = macd_fetcher.fetch_macd_values(source_datastore, symbol, days=TECHNICAL_DAYS, source=FINNHUB_API)
             stochastic = stochastic_fetcher.fetch_stochastic_values(source_datastore, symbol, days=TECHNICAL_DAYS, source=FINNHUB_API)
-            social_sentiment = social_sentiment_fetcher.fetch_social_sentiment(source_datastore, symbol, days=SOCIAL_SENTIMENT_DAYS, source=FINNHUB_API)
+            social_sentiment = social_sentiment_fetcher.fetch_social_sentiment(source_datastore, symbol, days=SENTIMENT_DAYS, source=FINNHUB_API)
+            insider_sentiment = insider_sentiment_fetcher.fetch_insider_sentiment(source_datastore, symbol, days=SENTIMENT_DAYS, source=FINNHUB_API)
 
             rsi_dict = {rsi['t'][i]: rsi['rsi'][i] for i in range(len(rsi['rsi']))}
             macd_dict = {macd['t'][i]: macd['macdSignal'][i] for i in range(len(macd['macdSignal']))}
@@ -64,8 +67,9 @@ def main():
                 stochastic_value = stochastic_dict.get(date, '')
                 reddit = reddit_social_sentiment_dict.get(date, '')
                 twitter = twitter_social_sentiment_dict.get(date, '')
+                insider = insider_sentiment.get(date, '')
 
-                writer.writerow([symbol, date, close, rsi_value, macd_value, stochastic_value, reddit, twitter])
+                writer.writerow([symbol, date, close, rsi_value, macd_value, stochastic_value, reddit, twitter, insider])
 
     print(f"Data fetched and saved to '{output_type}_data.csv' successfully!")
 

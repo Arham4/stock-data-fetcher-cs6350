@@ -31,7 +31,7 @@ def get_market_days(start_date, end_date):
     nyse_calendar = pandas_market_calendars.get_calendar('NYSE')
     schedule = nyse_calendar.schedule(start_date=start_date, end_date=end_date)
     market_days = pd.to_datetime(schedule.index)
-    market_days_str = set(market_days.strftime('%Y-%m-%d'))
+    market_days_str = list(market_days.strftime('%Y-%m-%d'))
     return market_days_str
 
 def is_market_day(date, market_days_set):
