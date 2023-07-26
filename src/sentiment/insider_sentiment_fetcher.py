@@ -7,9 +7,6 @@ import time_utils
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
 
-# The FinnHub API only gets data for the past 7 days when doing a social sentiment request
-SOCIAL_SENTIMENT_STEP = 7
-
 class InsiderSentimentFetcher:
     def fetch_insider_sentiment(self, source_datastore, symbol, days, source):
         fetcher = get_source(source)
