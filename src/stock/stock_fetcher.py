@@ -16,7 +16,7 @@ def get_source(source):
 
 def _fetch_local_sp500_stocks():
     stocks = []
-    for line in open('../../data/s&p500_stock_names.txt', mode='r').read().splitlines():
+    for line in open('./data/s&p500_stock_names.txt', mode='r').read().splitlines():
         stocks.append(line.split(',')[0])
     return stocks, 'sp500'
 
