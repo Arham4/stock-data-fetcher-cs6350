@@ -60,7 +60,7 @@ def main():
             reddit_social_sentiment_dict = {social_sentiment['dates'][i]: social_sentiment['reddit'][i] for i in range(len(social_sentiment['reddit']))}
             twitter_social_sentiment_dict = {social_sentiment['dates'][i]: social_sentiment['twitter'][i] for i in range(len(social_sentiment['twitter']))}
 
-            for i in range(DATA_BUFFER, len(price['t'])):
+            for i in range(DATA_BUFFER - 1, len(price['t'])):
                 date = price['t'][i]
                 close = price['c'][i]
                 rsi_value = rsi_dict.get(date, '')
