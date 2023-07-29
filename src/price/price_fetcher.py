@@ -29,4 +29,4 @@ def _fetch_prices_from_finnhub(source_datastore, symbol, days):
     except finnhub.FinnhubAPIException:
         print(f'API limit reached, waiting {SLEEP_TIME} seconds...')
         time.sleep(SLEEP_TIME)
-        return _fetch_prices_from_finnhub(symbol)
+        return _fetch_prices_from_finnhub(source_datastore, symbol, days)
