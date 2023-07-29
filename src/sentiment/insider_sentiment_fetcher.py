@@ -3,9 +3,12 @@ import finnhub
 import time
 import time_utils
 import requests
+import logging
 
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
+
+LOG = logging.getLogger("logger")
 
 class InsiderSentimentFetcher:
     def fetch_insider_sentiment(self, source_datastore, symbol, days, source):
@@ -23,7 +26,7 @@ def _fetch_insider_sentiment_from_finnhub(source_datastore, symbol, days):
 
     to_date = time_utils.get_current_date()
     from_date = time_utils.get_date_for_days_before(to_date, days)
-    print(f"Fetching insider sentiment for {symbol}...")
+    LOG.info(f"Fetching insider sentiment for {symbol}...")
     market_days = time_utils.get_market_days(from_date, to_date)
     insider_sentiment = _create_insider_sentiment_from_finnhub(finnhub_client, market_days, symbol, from_date, to_date)
     return insider_sentiment
@@ -39,7 +42,7 @@ def _create_insider_sentiment_from_finnhub(finnhub_client, market_days, symbol, 
             insider_sentiment[time_utils.string_to_epoch_in_est(day)] = insider_dict[key]
         return insider_sentiment
     except (finnhub.FinnhubAPIException, requests.exceptions.ReadTimeout) as e:
-        print(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
+        LOG.warning(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
         time.sleep(SLEEP_TIME)
         return _create_insider_sentiment_from_finnhub(finnhub_client, market_days, symbol, from_date, to_date)
 

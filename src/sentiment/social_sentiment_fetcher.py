@@ -3,12 +3,15 @@ import finnhub
 import time
 import time_utils
 import requests
+import logging
 
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
 
 # The FinnHub API only gets data for the past 7 days when doing a social sentiment request
 SOCIAL_SENTIMENT_STEP = 7
+
+LOG = logging.getLogger("logger")
 
 class SocialSentimentFetcher:
     def fetch_social_sentiment(self, source_datastore, symbol, days, source):
@@ -26,7 +29,7 @@ def _fetch_social_sentiment_from_finnhub(source_datastore, symbol, days):
 
     base_date = time_utils.get_current_date()
     end_date = time_utils.get_date_for_days_before(base_date, days)
-    print(f"Fetching social sentiment for {symbol}...")
+    LOG.info(f"Fetching social sentiment for {symbol}...")
     market_days = set(time_utils.get_market_days(end_date, base_date))
     social_sentiment = _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol, base_date, end_date, 
                                                                days=SOCIAL_SENTIMENT_STEP, 
@@ -78,6 +81,6 @@ def _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol,
         next_date = time_utils.get_date_for_days_before(to_date, 1)
         return _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol, next_date, end_date, days, social_sentiment)
     except (finnhub.FinnhubAPIException, requests.exceptions.ReadTimeout) as e:
-        print(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
+        LOG.warning(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
         time.sleep(SLEEP_TIME)
         return _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol, base_date, end_date, days, social_sentiment)
