@@ -2,6 +2,7 @@ from source.source_datastore import FINNHUB_API
 import finnhub
 import time
 import time_utils
+import requests
 
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
@@ -25,7 +26,7 @@ def _fetch_prices_from_finnhub(source_datastore, symbol, days):
         print(f"Fetching prices for {symbol}...")
         candles = finnhub_client.stock_candles(symbol, 'D', from_time, to_time)
         return candles
-    except finnhub.FinnhubAPIException:
-        print(f'API limit reached, waiting {SLEEP_TIME} seconds...')
+    except (finnhub.FinnhubAPIException, requests.exceptions.ReadTimeout) as e:
+        print(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
         time.sleep(SLEEP_TIME)
         return _fetch_prices_from_finnhub(source_datastore, symbol, days)

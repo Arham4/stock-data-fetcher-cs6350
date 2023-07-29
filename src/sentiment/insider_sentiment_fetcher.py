@@ -2,6 +2,7 @@ from source.source_datastore import FINNHUB_API
 import finnhub
 import time
 import time_utils
+import requests
 
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
@@ -37,10 +38,10 @@ def _create_insider_sentiment_from_finnhub(finnhub_client, market_days, symbol, 
             key = split[0] + '-' + split[1]
             insider_sentiment[time_utils.string_to_epoch_in_est(day)] = insider_dict[key]
         return insider_sentiment
-    except finnhub.FinnhubAPIException as e:
+    except (finnhub.FinnhubAPIException, requests.exceptions.ReadTimeout) as e:
         print(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
         time.sleep(SLEEP_TIME)
-        return _create_insider_sentiment_from_finnhub(finnhub_client, symbol, from_date, to_date)
+        return _create_insider_sentiment_from_finnhub(finnhub_client, market_days, symbol, from_date, to_date)
 
 def _create_insider_dict(insider_sentiment, market_days):
     def create_key(year, month):

@@ -2,6 +2,7 @@ from source.source_datastore import FINNHUB_API
 import finnhub
 import time
 import time_utils
+import requests
 
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
@@ -76,7 +77,7 @@ def _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol,
 
         next_date = time_utils.get_date_for_days_before(to_date, 1)
         return _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol, next_date, end_date, days, social_sentiment)
-    except finnhub.FinnhubAPIException as e:
+    except (finnhub.FinnhubAPIException, requests.exceptions.ReadTimeout) as e:
         print(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
         time.sleep(SLEEP_TIME)
         return _traverse_social_sentiment_from_finnhub(finnhub_client, market_days, symbol, base_date, end_date, days, social_sentiment)

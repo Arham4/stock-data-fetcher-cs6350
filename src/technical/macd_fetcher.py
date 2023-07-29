@@ -2,6 +2,7 @@ from source.source_datastore import FINNHUB_API
 import finnhub
 import time
 import time_utils
+import requests
 
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
@@ -25,7 +26,7 @@ def _fetch_macd_values_from_finnhub(source_datastore, symbol, days):
         print(f"Fetching MACD values for {symbol}...")
         macd = finnhub_client.technical_indicator(symbol=symbol, resolution='D', _from=from_time, to=to_time, indicator='macd', indicator_fields={})
         return macd
-    except finnhub.FinnhubAPIException:
-        print(f'API limit reached, waiting {SLEEP_TIME} seconds...')
+    except (finnhub.FinnhubAPIException, requests.exceptions.ReadTimeout) as e:
+        print(f'API limit reached, waiting {SLEEP_TIME} seconds...', e)
         time.sleep(SLEEP_TIME)
-        return _fetch_macd_values_from_finnhub(symbol)
+        return _fetch_macd_values_from_finnhub(source_datastore, symbol, days)
