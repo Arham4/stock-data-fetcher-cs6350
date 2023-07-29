@@ -59,7 +59,12 @@ def _create_insider_dict(insider_sentiment, market_days):
     if len(insider_sentiment) == 0:
         return {create_key(int(day.split('-')[0]), int(day.split('-')[1])): 0 for day in market_days}
 
+    earliest_year = None
+    earliest_month = None
     for sentiment in insider_sentiment:
+        earliest_year = sentiment['year'] if earliest_year is None or sentiment['year'] < earliest_year else earliest_year
+        earliest_month = sentiment['month'] if earliest_month is None or sentiment['month'] < earliest_month else earliest_month
+        
         key = create_key(sentiment['year'], sentiment['month'])
         insider_dict[key] = sentiment['mspr']
 
@@ -70,12 +75,19 @@ def _create_insider_dict(insider_sentiment, market_days):
 
         source_year = year
         source_month = month
+        filled = True
         while create_key(source_year, source_month) not in insider_dict:
+            if source_year < earliest_year or (source_year == earliest_year and source_month < earliest_month):
+                filled = False
+                break
             if source_month == 1:
                 source_month = 12
                 source_year -= 1
             else:
                 source_month -= 1
         
-        insider_dict[create_key(year, month)] = insider_dict[create_key(source_year, source_month)]        
+        if not filled:
+            insider_dict[create_key(year, month)] = 0
+        else:
+            insider_dict[create_key(year, month)] = insider_dict[create_key(source_year, source_month)]        
     return insider_dict
