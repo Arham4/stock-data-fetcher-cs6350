@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from source.source_datastore import FINNHUB_API
 import finnhub
 import time
 
@@ -11,14 +12,14 @@ class PriceFetcher:
         return fetcher(source_datastore, symbol, days)
 
 def get_source(source):
-    if source == 'FINNHUB':
+    if source == FINNHUB_API:
         return _fetch_prices_from_finnhub
     else:
         raise ValueError(f'Unknown source: {source}')
 
 def _fetch_prices_from_finnhub(source_datastore, symbol, days):
     try:
-        finnhub_client = source_datastore.fetch_client('FINNHUB')
+        finnhub_client = source_datastore.fetch_client(FINNHUB_API)
 
         from_time = int((datetime.now() - timedelta(days=days)).timestamp())
         to_time = int(datetime.now().timestamp())

@@ -1,5 +1,4 @@
-from collections import OrderedDict
-from datetime import datetime, timedelta
+from source.source_datastore import FINNHUB_API
 import finnhub
 import time
 import time_utils
@@ -13,13 +12,13 @@ class InsiderSentimentFetcher:
         return fetcher(source_datastore, symbol, days)
 
 def get_source(source):
-    if source == 'FINNHUB':
+    if source == FINNHUB_API:
         return _fetch_insider_sentiment_from_finnhub
     else:
         raise ValueError(f'Unknown source: {source}')
 
 def _fetch_insider_sentiment_from_finnhub(source_datastore, symbol, days):
-    finnhub_client = source_datastore.fetch_client('FINNHUB')
+    finnhub_client = source_datastore.fetch_client(FINNHUB_API)
 
     to_date = time_utils.get_current_date()
     from_date = time_utils.get_date_for_days_before(to_date, days)

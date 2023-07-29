@@ -1,9 +1,4 @@
-from collections import OrderedDict
-from datetime import datetime, timedelta
 from source.source_datastore import GOOGLE_TRENDS_API
-import finnhub
-import time
-import time_utils
 
 ONE_YEAR_FROM_TODAY = 'today 12-m'
 
