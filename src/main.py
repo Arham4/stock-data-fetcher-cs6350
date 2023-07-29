@@ -24,6 +24,10 @@ TECHNICAL_DAYS = PRICE_DAYS - TECHNICAL_BUFFER
 # the required time horizon is less
 SENTIMENT_DAYS = 365
 
+# The average monthly S&P500 stock market returns from 1980 to 2019 were .67% per month
+# source: https://stockanalysis.com/article/average-monthly-stock-returns/
+AVERAGE_MONTHLY_MARKET_RETURNS = 0.0067
+
 def main():
     stocks_fetcher = StockFetcher()
     source_datastore = SourceDatastore()
@@ -36,7 +40,7 @@ def main():
 
     stocks, output_type = stocks_fetcher.fetch_stocks(HARDCODED)
 
-    columns = ['Stock name', 'Date', 'Price', 'RSI', 'MACD', 'Stoch', 'Reddit', 'Twitter', 'Insider']
+    columns = ['Stock name', 'Date', 'Price', 'RSI', 'MACD', 'Stoch', 'Reddit', 'Twitter', 'Insider', 'Correct']
 
     with open(f'./output/{output_type}_data.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
@@ -56,10 +60,7 @@ def main():
             reddit_social_sentiment_dict = {social_sentiment['dates'][i]: social_sentiment['reddit'][i] for i in range(len(social_sentiment['reddit']))}
             twitter_social_sentiment_dict = {social_sentiment['dates'][i]: social_sentiment['twitter'][i] for i in range(len(social_sentiment['twitter']))}
 
-            for i in range(len(price['t'])):
-                if i < DATA_BUFFER:
-                    continue
-
+            for i in range(DATA_BUFFER, len(price['t'])):
                 date = price['t'][i]
                 close = price['c'][i]
                 rsi_value = rsi_dict.get(date, '')
@@ -69,7 +70,17 @@ def main():
                 twitter = twitter_social_sentiment_dict.get(date, '')
                 insider = insider_sentiment.get(date, '')
 
-                writer.writerow([symbol, date, close, rsi_value, macd_value, stochastic_value, reddit, twitter, insider])
+                price_30_days_from_today = price['c'][i + 30] if i + 30 < len(price['c']) else None
+                if price_30_days_from_today is None:
+                    correct = None
+                elif price_30_days_from_today < close * (1 - AVERAGE_MONTHLY_MARKET_RETURNS):
+                    correct = -1
+                elif price_30_days_from_today >= close * (1 - AVERAGE_MONTHLY_MARKET_RETURNS) and price_30_days_from_today <= close * (1 + AVERAGE_MONTHLY_MARKET_RETURNS):
+                    correct = 0
+                else:
+                    correct = 1
+
+                writer.writerow([symbol, date, close, rsi_value, macd_value, stochastic_value, reddit, twitter, insider, correct])
 
     print(f"Data fetched and saved to '{output_type}_data.csv' successfully!")
 
