@@ -52,6 +52,10 @@ def _create_insider_dict(insider_sentiment, market_days):
         return str(year) + '-' + str(month)
 
     insider_dict = {}
+
+    if len(insider_sentiment) == 0:
+        return {create_key(int(day.split('-')[0]), int(day.split('-')[1])): 0 for day in market_days}
+
     for sentiment in insider_sentiment:
         key = create_key(sentiment['year'], sentiment['month'])
         insider_dict[key] = sentiment['mspr']
