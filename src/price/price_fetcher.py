@@ -1,7 +1,7 @@
-from datetime import datetime, timedelta
 from source.source_datastore import FINNHUB_API
 import finnhub
 import time
+import time_utils
 
 # The amount of time to sleep in seconds when the API limit is reached
 SLEEP_TIME = 60.1
@@ -21,8 +21,8 @@ def _fetch_prices_from_finnhub(source_datastore, symbol, days):
     try:
         finnhub_client = source_datastore.fetch_client(FINNHUB_API)
 
-        from_time = int((datetime.now() - timedelta(days=days)).timestamp())
-        to_time = int(datetime.now().timestamp())
+        to_time = time_utils.get_current_date()
+        from_time = time_utils.get_date_for_days_before(to_time, days=days)
         print(f"Fetching prices for {symbol}...")
         candles = finnhub_client.stock_candles(symbol, 'D', from_time, to_time)
         return candles
