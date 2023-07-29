@@ -20,8 +20,8 @@ def get_source(source):
 def _fetch_rsi_values_from_finnhub(source_datastore, symbol, days):
     try:
         finnhub_client = source_datastore.fetch_client(FINNHUB_API)
-        to_time = time_utils.get_current_date()
-        from_time = time_utils.get_date_for_days_before(to_time, days=days)
+        to_time = time_utils.get_current_epoch_time()
+        from_time = time_utils.get_epoch_time_for_days_before(to_time, days=days)
         print(f"Fetching RSI values for {symbol}...")
         rsi = finnhub_client.technical_indicator(symbol=symbol, resolution='D', _from=from_time, to=to_time, indicator='rsi', indicator_fields={"timeperiod": 14})
         return rsi

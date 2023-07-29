@@ -20,8 +20,8 @@ def get_source(source):
 def _fetch_stochastic_values_from_finnhub(source_datastore, symbol, days):
     try:
         finnhub_client = source_datastore.fetch_client(FINNHUB_API)
-        to_time = time_utils.get_current_date()
-        from_time = time_utils.get_date_for_days_before(to_time, days=days)
+        to_time = time_utils.get_current_epoch_time()
+        from_time = time_utils.get_epoch_time_for_days_before(to_time, days=days)
         print(f"Fetching stochastic values for {symbol}...")
         stochastic = finnhub_client.technical_indicator(symbol=symbol, resolution='D', _from=from_time, to=to_time, indicator='stoch', indicator_fields={"fastkperiod": 14})
         return stochastic

@@ -3,6 +3,14 @@ import pandas_market_calendars
 import pandas as pd
 from pytz import timezone
 
+def get_current_epoch_time():
+    return int(datetime.now().timestamp())
+
+def get_epoch_time_for_days_before(epoch_time, days):
+    input_datetime = datetime.fromtimestamp(epoch_time)
+    days_before_datetime = input_datetime - timedelta(days=days)
+    return int(days_before_datetime.timestamp())
+
 def get_current_date():
     current_date = datetime.now().strftime("%Y-%m-%d")
     return current_date
